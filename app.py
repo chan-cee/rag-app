@@ -17,7 +17,14 @@ from langchain.vectorstores import FAISS
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, PromptTemplate
 from langchain.chains import RetrievalQA
 
+# session = boto3.Session(
+#     aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
+#     aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
+#     aws_session_token=st.secrets["AWS_SESSION_TOKEN"],
+#     region_name=st.secrets["AWS_DEFAULT_REGION"]
+# )
 session = boto3.Session()
+
 bedrock = session.client("bedrock-runtime", region_name="us-west-2")
 bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v2:0",client=bedrock)
 
@@ -330,7 +337,7 @@ class ClaudeLLM(BaseLLM): # sonnet 4
 #     return qa.invoke({"query": query})["result"]
 
 def get_response_llm(vectorstore_faiss, query, model_id):
-    session = boto3.Session()
+    #session = boto3.Session()
     bedrock = session.client("bedrock-runtime", region_name="us-west-2")
 
     if "openai" in model_id.lower():  
