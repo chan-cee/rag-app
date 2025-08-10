@@ -1,0 +1,17 @@
+boto3==1.40.3
+langchain==0.3.27
+langchain_community==0.3.27
+langchain_core==0.3.73
+numpy
+pandas==2.3.1
+pydantic==2.11.7
+streamlit==1.48.0
+faiss-cpu
+
+# boto3
+# awscli
+# langchain
+# streamlit
+# faiss-cpu
+# pandas
+# openpyxl

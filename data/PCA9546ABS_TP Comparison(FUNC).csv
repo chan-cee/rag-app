@@ -1,0 +1,283 @@
+"#include ""Testplan.h""",,,,,,,,,,,,
+,,,,,,,,,,,,
+//-----------------------------------------------------------------------------,,,,,,,,,,,,
+//,,,,,,,,,,,,
+// Task: Func,,,,,,,,,,,,
+//,,,,,,,,,,,,
+// Description:,,,,,,,,,,,,
+// ,,,,,,,,,,,,
+// Revision history:,,,,,,,,,,,,
+//,,,,,,,,,,,,
+//-----------------------------------------------------------------------------,,,,,,,,,,,,
+,,,,,,,,,,,,
+TASK_FUNCTION Func (),,,,,,,,,,,,
+{,,,,,,,,,,,,
+  DWORD TestNumber;,,,,,,,,,,,,
+   double VDD;,,,,,,,,,,,,
+  ,,,,,,,,,,,,
+  BEGIN_TASK (FUNC_ID),,,,,,,,,,,,
+,,,,,,,,,,,,
+    // Update the die list,,,,,,,,,,,,
+    GetDieList (gDieList);,,,,,,,,,,,,
+,,,,,,,,,,,,
+    //Connect grounds to Abus ground for all tests,,,,,,,,,,,,
+      GndConnectAbus    (ROW4);,,,,,,,,,,,,
+"      PinConnectAbus    (pinVSS, ROW4, gDieList) ;",,,,,,,,,,,,
+,  ,,,,,,,,,,,
+,  //Digital Setup,,,,,,,,,,,
+,   PATTERN_ERR PattErr;,,,,,,,,,,,
+        DigTimeoutSet (5000L);,,,,,,,,,,,,
+        DigPatternExecModeSet (STOP_AT_END_PATT);,,,,,,,,,,,,
+,,,,,,,,,,,,
+ TestNumber = 10001;,,,,,,,,,,,,TEST / SETUP #  :  1200         VCC    :  5.500  V     THRESHOLD  :  5.500  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  10.00 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :   1545 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :   1592 PG 1   VIHA   :  5.500  V     T0 CYCLE   :  10.00 US
+,VDD = 5.5;,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  1.650  V     T0 STOP    :  9.900 US
+"        PinConnectP4mu(pinVDD, gDieList);",,,,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.850  V     TG START   :  1.000 US
+,"P4muSourceSet (pinVDD, RANGE_20V,VDD, P4R40mA, 40e-3, CONT, gDieList);",,,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  8.000 US
+,"P4muEnable    (pinVDD, gDieList);",,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  9.900 US
+,,,,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  1.800  V     IOL VALUE  :  500.0 UA
+//Digital pattern test,,,,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  3.500  V     IOH VALUE  : -500.0 UA
+,,"DigDriverSet  ( pinOUTPIN3, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  51 ]=======  UNDER TEST :      1
+,,"DigDriverSet  ( pinSDA, 3.85, 1.65, RANGE_7V, gDieList );",,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,VINA  : OUTPIN3 =  1  2  3 14 13 
+,,"DigSensorSet(pinSDA, 3.5, 1.8, RANGE_7V, gDieList );",,,,,,,,,,VINB  : OUTPIN1 = 15 
+    ,,,,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"                DigLoadSet( pinSDA, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,VOUTB : OUTPIN1 = 15 
+,,,,,,,,,,,,LOAD  : OUTPIN1 = 15 
+,,"PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"                PinConnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,NOTE  : CHK VIL/VIH SCL
+,,,,,,,,,,,,
+"        RunD (""VIL/VIH Func"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,
+,,,,,,,,,,,,
+"        PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,
+"        PinDisconnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,
+,,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+    TestNumber = 10002;,,,,,,,,,,,,TEST / SETUP #  :  1202         VCC    :  5.500  V     THRESHOLD  :  5.500  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  10.00 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :   1545 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :   1592 PG 1   VIHA   :  5.500  V     T0 CYCLE   :  10.00 US
+//Digital pattern test,,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  1.650  V     T0 STOP    :  9.900 US
+,,"DigDriverSet  ( pinOUTPIN4, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.850  V     TG START   :  1.000 US
+,,"DigDriverSet  ( pinSCL, 3.85, 1.65, RANGE_7V, gDieList );",,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP      :  8.000 US
+,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  9.900 US
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  1.800  V     IOL VALUE  :  8.000 MA
+,,"DigSensorSet(pinSDA, 3.5, 1.8, RANGE_7V, gDieList );",,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  3.500  V     IOH VALUE  : -500.0 UA
+,,,,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  52 ]=======  UNDER TEST :      1
+"                DigLoadSet( pinSDA, 0.5e-3, 8e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,VINA  : OUTPIN4 =  1  2  3 15 13 
+"                //PinConnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,VINB  : OUTPIN2 = 14 
+,,,,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+,,,,,,,,,,,,VOUTB : OUTPIN1 = 15 
+"        RunD (""VIL/VIH Func"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,LOAD  : OUTPIN1 = 15 
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,NOTE  : CHK VIL/VIH SDA
+"        PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,
+"        //PinDisconnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+ TestNumber = 10003;,,,,,,,,,,,,TEST / SETUP #  :  1204         VCC    :  5.500  V     THRESHOLD  :  5.500  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  10.00 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :   1593 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :   1642 PG 1   VIHA   :  5.500  V     T0 CYCLE   :  10.00 US
+//Digital pattern test,,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  1.650  V     T0 STOP    :  9.900 US
+,,"DigDriverSet  ( pinINPIN2, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.850  V     TG START   :  1.000 US
+,,"DigDriverSet  ( pinINPIN3, 3.85, 1.65, RANGE_7V, gDieList );",,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  8.000 US
+,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  9.900 US
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  1.800  V     IOL VALUE  :  500.0 UA
+,,"DigSensorSet(pinSDA, 3.5, 1.8, RANGE_7V, gDieList );",,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  3.500  V     IOH VALUE  : -500.0 UA
+,,,,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  53 ]=======  UNDER TEST :      1
+"                DigLoadSet( pinSDA, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+                ,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,VINA  : INPIN2  = 14 15 
+,"        PinConnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,VINB  : INPIN3  =  1  2  3 13 
+,,,,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"        RunD (""VIH ADR/RST"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,VOUTB : OUTPIN1 = 15 
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,LOAD  : OUTPIN1 = 15 
+,,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"                PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,NOTE  : CHK VIH ADR/RESET
+"                PinDisconnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+TestNumber = 10004;,,,,,,,,,,,,TEST / SETUP #  :  1206         VCC    :  5.500  V     THRESHOLD  :  5.500  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  10.00 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :   1545 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :   1592 PG 1   VIHA   :  5.500  V     T0 CYCLE   :  10.00 US
+//Digital pattern test,,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  1.650  V     T0 STOP    :  9.900 US
+,,"DigDriverSet  ( pinINPIN2, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.850  V     TG START   :  1.000 US
+ ,,"DigDriverSet  ( pinINPIN3,3.85 ,1.65, RANGE_7V, gDieList );",,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  8.000 US
+,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  9.900 US
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  1.800  V     IOL VALUE  :  500.0 UA
+,,"DigSensorSet(pinSDA, 3.5, 1.8, RANGE_7V, gDieList );",,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  3.500  V     IOH VALUE  : -500.0 UA
+,,,,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  54 ]=======  UNDER TEST :      1
+"                DigLoadSet( pinSDA, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,VINA  : INPIN2  = 14 15 
+"                PinConnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,VINB  : INPIN3  =  1  2  3 13 
+,,,,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"        RunD (""VIL/VIH Func"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,VOUTB : OUTPIN1 = 15 
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,LOAD  : OUTPIN1 = 15 
+,,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"        PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,,NOTE  : CHK VIL ADR
+"        PinDisconnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,
+,,,,,,,,,,,,
+"        P4muSourceSet (pinVDD, RANGE_20V, 0, P4R40mA, 40e-3, CONT, gDieList);",,,,,,,,,,,,
+,,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+TestNumber = 10005;,,,,,,,,,,,,TEST / SETUP #  :   390         VCC    :  3.600  V     THRESHOLD  :  3.600  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  20.00 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :   1541 PG 1   VILA   :  1.080  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :   1544 PG 1   VIHA   :  3.600  V     T0 CYCLE   :  10.00 US
+,VDD = 3.6;,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  0.000  V     T0 STOP    :  9.000 US
+,"P4muSourceSet (pinVDD, RANGE_20V,VDD, P4R40mA, 40e-3, CONT, gDieList);",,,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.600  V     TG START   :  1.000 US
+,,,,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  8.000 US
+//Digital pattern test,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  9.000 US
+,,"DigDriverSet  ( pinINPIN7, 3.6, 1.080, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  500.0 MV     IOL VALUE  :  500.0 UA
+,,,,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  2.000  V     IOH VALUE  : -500.0 UA
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  16 ]=======  UNDER TEST :      1
+,,"DigSensorSet(pinINPIN4, 2, 0.5, RANGE_7V, gDieList );",,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                DigLoadSet( pinINPIN4, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,VINA  : INPIN7  = 14 15  1  2  3 13 
+,,,,,,,,,,,,VINB  : MACRO   = NOT SELECTED
+,,"PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"                PinConnectDigLoad ( pinINPIN4, gDieList );",,,,,,,,,,,,VOUTB : INPIN4  =  4  5  6  7  9 10 11 12 
+,,,,,,,,,,,,LOAD  : INPIN4  =  4  5  6  7  9 10 11 12 
+"        RunD (""HIFCN_RESET_VIL"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,NOTE  : RESET AT VIL
+,,,,,,,,,,,,
+," PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,
+"         PinDisconnectDigLoad ( pinINPIN4, gDieList );",,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+ TestNumber = 10006;,,,,,,,,,,,,TEST / SETUP #  :   375         VCC    :  3.600  V     THRESHOLD  :  3.600  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  10.00 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :    571 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :    618 PG 1   VIHA   :  3.600  V     T0 CYCLE   :  1.200 US
+        VDD = 3.6;,,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  0.000  V     T0 STOP    :  1.000 US
+,"P4muSourceSet (pinVDD, RANGE_20V,VDD, P4R40mA, 40e-3, CONT, gDieList);",,,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.600  V     TG START   :  100.0 NS
+,,,,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  1.000 US
+//Digital pattern test,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  1.100 US
+,,"DigDriverSet  ( pinINPIN7, 3.6, 0, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  500.0 MV     IOL VALUE  :  500.0 UA
+,,,,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  1.100  V     IOH VALUE  : -500.0 UA
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  17 ]=======  UNDER TEST :      1
+,,"DigSensorSet(pinSDA, 1.1, 0.5, RANGE_7V, gDieList );",,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                DigLoadSet( pinSDA, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,VINA  : INPIN7  = 14 15  1  2  3 13 
+,,,,,,,,,,,,VINB  : MACRO   = NOT SELECTED
+,,"PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"                PinConnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,VOUTB : INPIN6  = 15 
+,,,,,,,,,,,,LOAD  : INPIN6  = 15 
+"        RunD (""HIFCN_ENABLE_ALL"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,NOTE  : ENABLE ALL PASS GATES
+,,,,,,,,,,,,
+," PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,
+"         PinDisconnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,
+,,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+ TestNumber = 10007;,,,,,,,,,,,,TEST / SETUP #  :   598         VCC    :  0.000  V     THRESHOLD  :  3.600  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  5.000 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :     12 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :     12 PG 1   VIHA   :  3.600  V     T0 CYCLE   :  40.00 US
+//Digital pattern test,,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  0.000  V     T0 STOP    :  39.90 US
+,,"DigDriverSet  ( pinINPIN1, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.600  V     TG START   :  1.000 US
+,,,,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  38.00 US
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  39.00 US
+,,,,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  500.0 MV     IOL VALUE  :  500.0 UA
+"                DigLoadSet( pinINPIN1, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  2.000  V     IOH VALUE  : -500.0 UA
+,,,,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  38 ]=======  UNDER TEST :      1
+,,"PinConnectDig ( pinINPIN1, ALL, gDieList );",,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+"                PinConnectDigLoad ( pinINPIN1, gDieList );",,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+,,,,,,,,,,,,VINA  : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"        RunD (""ISTBH"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,VINB  : MACRO   = NOT SELECTED
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+,,,,,,,,,,,,VOUTB : MACRO   = NOT SELECTED
+," PinDisconnectDig ( pinINPIN1, ALL, gDieList );",,,,,,,,,,,LOAD  : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"         PinDisconnectDigLoad ( pinINPIN1, gDieList );",,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,NOTE  : RESET
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+    TestNumber = 10008;,,,,,,,,,,,,TEST / SETUP #  :   625         VCC    :  0.000  V     THRESHOLD  :  3.600  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  5.000 MS     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :   1541 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :   1544 PG 1   VIHA   :  3.600  V     T0 CYCLE   :  40.00 US
+,VDD = 3.6;,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  0.000  V     T0 STOP    :  39.90 US
+,"P4muSourceSet (pinVDD, RANGE_20V,VDD, P4R40mA, 40e-3, CONT, gDieList);",,,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.600  V     TG START   :  1.000 US
+,,,,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  38.00 US
+//Digital pattern test,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  39.00 US
+,,"DigDriverSet  ( pinINPIN1, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  500.0 MV     IOL VALUE  :  500.0 UA
+,,,,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  2.000  V     IOH VALUE  : -500.0 UA
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  45 ]=======  UNDER TEST :      1
+,,"DigSensorSet(pinINPIN4, 2, 0.5, RANGE_7V, gDieList );",,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                DigLoadSet( pinINPIN4, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,VINA  : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+,,,,,,,,,,,,VINB  : MACRO   = NOT SELECTED
+,,"PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"                PinConnectDigLoad ( pinINPIN4, gDieList );",,,,,,,,,,,,VOUTB : INPIN4  =  4  5  6  7  9 10 11 12 
+,,,,,,,,,,,,LOAD  : INPIN4  =  4  5  6  7  9 10 11 12 
+"        RunD (""HIFCN_RESET_VIL"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,NOTE  : RESET
+,,,,,,,,,,,,
+," PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,
+"         PinDisconnectDigLoad ( pinINPIN4, gDieList );",,,,,,,,,,,,
+,,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+TestNumber = 10009;,,,,,,,,,,,,TEST / SETUP #  :   698         VCC    :  3.600  V     THRESHOLD  :  3.600  V
+    BEGIN_TEST (TestNumber),,,,,,,,,,,,MEASURE         :  FUNCTION     CLAMP  :  NOT-USED     TDA VALUE  :  0.000  V
+,,,,,,,,,,,,PARAMETER NAME  :  HI FCN       DELAY  :  0.000  S     TDB VALUE  :  0.000  V
+      // Update the die list,,,,,,,,,,,,FUNC LINE ADDER :      0        OFFSET :  0.000  V     TTB - LOW  :  0.000  V
+      GetDieList (gDieList);,,,,,,,,,,,,FIRST FUNC LINE :    483 PG 1   VILA   :  0.000  V     TTA - HIGH :  0.000  V
+,,,,,,,,,,,,LAST  FUNC LINE :    519 PG 1   VIHA   :  3.600  V     T0 CYCLE   :  40.00 US
+,VDD = 3.6;,,,,,,,,,,,LOW  REJECT BIN :      2        VILB   :  0.000  V     T0 STOP    :  39.90 US
+,"P4muSourceSet (pinVDD, RANGE_20V,VDD, P4R40mA, 40e-3, CONT, gDieList);",,,,,,,,,,,HIGH REJECT BIN :      2        VIHB   :  3.600  V     TG START   :  1.000 US
+,,,,,,,,,,,,F/M-VCC  OFFSET :  0.000  V     VOLA   :  1.400  V     TG STOP    :  38.00 US
+//Digital pattern test,,,,,,,,,,,,FORCE     VALUE :  NOT-USED     VOHA   :  1.400  V     STROBE     :  39.00 US
+,,"DigDriverSet  ( pinINPIN1, VDD, 0, RANGE_7V, gDieList );",,,,,,,,,,LOW       LIMIT :  NOT-USED     VOLB   :  500.0 MV     IOL VALUE  :  500.0 UA
+,,,,,,,,,,,,HIGH      LIMIT :  NOT-USED     VOHB   :  2.000  V     IOH VALUE  : -500.0 UA
+,,"DigSensorSet(pinINPIN1, 1.4, 1.4, RANGE_7V, gDieList );",,,,,,,,,,=======[ FILE NAME PCA9546A.FRB  GROUP #  46 ]=======  UNDER TEST :      1
+,,"DigSensorSet(pinSDA, 2, 0.5, RANGE_7V, gDieList );",,,,,,,,,,F/M   : MACRO   = DISCONNECTED
+,,,,,,,,,,,,FCN   : ALLPINS = 14 15  1  2 13  3  4  5  6  7  9 10 11 12 
+"                DigLoadSet( pinSDA, 0.5e-3, 0.5e-3, R40mA,VDD, gDieList ) ;",,,,,,,,,,,,VINA  : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+,,,,,,,,,,,,VINB  : MACRO   = NOT SELECTED
+,,"PinConnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,VOUTA : INPIN1  =  1  3  2  4  6  9  5  7 10 12 11 14 15 13 
+"                PinConnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,VOUTB : OUTPIN1 = 15 
+,,,,,,,,,,,,LOAD  : OUTPIN1 = 15 
+"        RunD (""HIFCN_READ_IOL"", RNORM, &PattErr, NC_STEP, NC_STEP, TM_LOAD );",,,,,,,,,,,,EXT   : MACRO   = DISCONNECTED
+"        StoreDigResult( TestNumber, &PattErr, gDieList );",,,,,,,,,,,,NOTE  : READ
+,,,,,,,,,,,,
+," PinDisconnectDig ( pinAllpins, ALL, gDieList );",,,,,,,,,,,
+"         PinDisconnectDigLoad ( pinSDA, gDieList );",,,,,,,,,,,,
+,,,,,,,,,,,,
+    END_TEST,,,,,,,,,,,,
