@@ -1,6 +1,7 @@
 import subprocess
 import json
 import os
+import pytz
 
 # CONFIG
 AWS_PROFILE = "default"   # your AWS CLI SSO profile name
@@ -43,6 +44,13 @@ def get_access_token():
         print("SSO token expired, please run 'aws sso login' manually.")
         exit(1)
 
+    sgt = pytz.timezone("Asia/Singapore")
+    expire_sgt = expire_dt.astimezone(sgt)
+
+    print(f"✅ SSO token is valid.")
+    print(f"   Expires (UTC): {expire_dt.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+    print(f"   Expires (SGT): {expire_sgt.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+
     return data["accessToken"]
 
 def get_role_credentials(access_token):
@@ -64,7 +72,7 @@ def write_secrets_toml(creds):
     os.makedirs(os.path.dirname(secrets_path), exist_ok=True)
 
     content = f"""
-    AWS_ACCESS_KEY_ID = "{creds['accessKeyId']}"
+    AWS_ACCESS_KEY_ID = "{creds['accessKeyId']}" 
     AWS_SECRET_ACCESS_KEY = "{creds['secretAccessKey']}"
     AWS_SESSION_TOKEN = "{creds['sessionToken']}"
     AWS_DEFAULT_REGION = "{REGION}"
@@ -90,7 +98,7 @@ def main():
     token = get_access_token()
     creds = get_role_credentials(token)
     write_secrets_toml(creds)
-    git_commit_and_push()
+    #git_commit_and_push()
 
 if __name__ == "__main__":
     main()
