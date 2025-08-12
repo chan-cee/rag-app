@@ -7,6 +7,9 @@ pandas==2.3.1
 pydantic==2.11.7
 streamlit==1.48.0
 faiss-cpu
+langchain_pinecone
+pinecone
+re
 
 # boto3
 # awscli
