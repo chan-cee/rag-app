@@ -9,7 +9,6 @@ streamlit==1.48.0
 faiss-cpu
 langchain_pinecone
 pinecone
-re
 
 # boto3
 # awscli
