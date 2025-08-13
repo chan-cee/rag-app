@@ -28,7 +28,7 @@ class GPTLLM(BaseLLM): # oss-120
                         "messages": [{"role": "user", "content": prompt}],
                         "temperature": kwargs.get("temperature", 0.2),
                         "top_p": kwargs.get("top_p", 0.5),
-                        "max_completion_tokens": kwargs.get("max_completion_tokens", 4096)
+                        "max_completion_tokens": kwargs.get("max_completion_tokens", 8192)
                     })
                 )
                 response_body = json.loads(response['body'].read())
