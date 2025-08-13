@@ -57,7 +57,7 @@ def get_response_llm(vectorstore, query, model_id):
     qa = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff", # map_reduce , refine, stuff
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 10}),
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT}
     )
