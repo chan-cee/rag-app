@@ -33,7 +33,7 @@ human_template = """
 
 Your task:
 Convert the following MCT 2000 script into SPEAL syntax:
-{query}
+{question}
 
 Output:
 Return only the converted SPEAL code inside a single code block.
