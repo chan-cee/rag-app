@@ -26,9 +26,9 @@ class GPTLLM(BaseLLM): # oss-120
                     accept="application/json",
                     body=json.dumps({
                         "messages": [{"role": "user", "content": prompt}],
-                        "temperature": kwargs.get("temperature", 0.3),
-                        "top_p": kwargs.get("top_p", 0.9),
-                        "max_completion_tokens": kwargs.get("max_completion_tokens", 1024)
+                        "temperature": kwargs.get("temperature", 0.2),
+                        "top_p": kwargs.get("top_p", 0.5),
+                        "max_completion_tokens": kwargs.get("max_completion_tokens", 4096)
                     })
                 )
                 response_body = json.loads(response['body'].read())
@@ -64,9 +64,9 @@ class ClaudeLLM(BaseLLM): # sonnet 4
                     body=json.dumps({
                         "anthropic_version": "bedrock-2023-05-31",
                         "messages": [{"role": "user", "content": prompt}],
-                        "temperature": kwargs.get("temperature", 0.3),
-                        "top_p": kwargs.get("top_p", 0.9),
-                        "max_tokens": kwargs.get("max_tokens", 1024)
+                        "temperature": kwargs.get("temperature", 0.2),
+                        "top_p": kwargs.get("top_p", 0.5),
+                        "max_tokens": kwargs.get("max_tokens", 4096)
                     })
                 )
                 response_body = json.loads(response['body'].read())
