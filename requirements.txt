@@ -9,6 +9,7 @@ streamlit==1.48.0
 faiss-cpu
 langchain_pinecone
 pinecone
+tiktoken
 
 # boto3
 # awscli

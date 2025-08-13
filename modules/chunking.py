@@ -18,7 +18,7 @@ s3_client = boto3.client("s3",
     region_name=st.secrets["AWS_DEFAULT_REGION"]
 )
 
-def upload_file_to_s3(uploaded_file) -> str:
+def upload_file_to_s3(uploaded_file) -> str: # all file types are accepted (might need to fix)
     key = f"raw_docs/{uploaded_file.name}"
     try:
         s3_client.put_object(
@@ -46,7 +46,7 @@ def get_all_s3_keys(bucket_name):
             keys.append(obj['Key'])
     return keys
 
-def upload_chunks(uploaded_file, bedrock_embeddings):
+def upload_chunks(uploaded_file, bedrock_embeddings): # only excel and csv (pdf will not be added to pinecone yet)
     # Read bytes from uploaded file
     uploaded_file.seek(0) 
     file_bytes = uploaded_file.read()
@@ -70,8 +70,11 @@ def upload_chunks(uploaded_file, bedrock_embeddings):
     # If multiple sheets, iterate through each
     for sheet_name, df in sheets.items():
         # Use your existing splitting logic here
-        chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
+        #chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
+        chunks = split_by_tokens(df)
         all_docs.extend(chunks)
+
+    st.success(f"Total: {len(all_docs)} chunks created and uploaded!")
 
     vectorstore = PineconeVectorStore.from_documents(
         documents=all_docs,
@@ -106,9 +109,9 @@ def upload_chunks_from_s3(s3_key, bedrock_embeddings):
 
     all_docs = []
     for sheet_name, sheet_df in dfs:
-        # Your splitting function, adapted to produce langchain Documents
-        docs = split_by_test_number(sheet_df, sheet_name, s3_key)
-        all_docs.extend(docs)
+        #chunks = split_by_test_number(sheet_df, sheet_name, s3_key)
+        chunks = split_by_tokens(sheet_df)
+        all_docs.extend(chunks)
 
     vectorstore = PineconeVectorStore.from_documents(
         documents=all_docs,
@@ -271,6 +274,61 @@ def convert_entire_sheet_to_text(df, sheet_name, filename):
             content_parts.append(f"Row {idx + 1}: {' | '.join(row_parts)}")
     
     return "\n".join(content_parts)
+
+import tiktoken
+from typing import List, Tuple
+
+def count_tokens(text: str, encoding_name: str = "cl100k_base") -> int:
+    """Count tokens in text using tiktoken encoding"""
+    try:
+        encoding = tiktoken.get_encoding(encoding_name)
+        return len(encoding.encode(text))
+    except:
+        # Fallback: rough approximation (4 chars per token)
+        return len(text) // 4
+
+
+def split_by_tokens(df, max_tokens: int = 7500, overlap_tokens: int = 200) -> List[Tuple[pd.DataFrame, int, int]]:
+    """Split DataFrame by token count, returning (chunk_df, start_row, end_row) tuples"""
+    chunks = []
+    start_idx = 0
+    
+    while start_idx < len(df):
+        current_chunk_rows = []
+        current_token_count = 0
+        end_idx = start_idx
+        
+        # Build chunk row by row until token limit is reached
+        for idx in range(start_idx, len(df)):
+            row_text = ' '.join([str(cell) for cell in df.iloc[idx].values if pd.notna(cell)])
+            row_tokens = count_tokens(row_text)
+            
+            # Check if adding this row would exceed limit
+            if current_token_count + row_tokens > max_tokens and current_chunk_rows:
+                break
+            
+            current_chunk_rows.append(idx)
+            current_token_count += row_tokens
+            end_idx = idx + 1
+        
+        # If no rows fit (single row too large), take it anyway
+        if not current_chunk_rows:
+            current_chunk_rows = [start_idx]
+            end_idx = start_idx + 1
+        
+        # Create chunk DataFrame
+        chunk_df = df.iloc[current_chunk_rows]
+        chunks.append((chunk_df, start_idx + 1, end_idx))  # +1 for 1-based row numbering
+        
+        # Calculate overlap for next chunk
+        if end_idx >= len(df):
+            break
+            
+        # Find overlap starting position
+        overlap_rows = min(overlap_tokens // 10, len(current_chunk_rows) // 4, 5)  # Rough estimate
+        start_idx = max(start_idx + 1, end_idx - overlap_rows)
+    
+    return chunks
 
 
 # INITIAL PROTOTYPE (for local FAISS database)    
