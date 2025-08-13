@@ -6,6 +6,9 @@ import io
 import os
 from langchain_pinecone import PineconeVectorStore
 from langchain.vectorstores import FAISS
+import tiktoken
+from typing import List, Tuple
+
 
 S3_BUCKET_NAME = "rag-documents-eds"
 PINECONE_INDEX_NAME = "rag-documents"
@@ -46,7 +49,8 @@ def get_all_s3_keys(bucket_name):
             keys.append(obj['Key'])
     return keys
 
-def upload_chunks(uploaded_file, bedrock_embeddings): # only excel and csv (pdf will not be added to pinecone yet)
+# main function for upload to s3 and pinecone
+def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only excel and csv (pdf will not be added to pinecone yet)
     # Read bytes from uploaded file
     uploaded_file.seek(0) 
     file_bytes = uploaded_file.read()
@@ -69,20 +73,23 @@ def upload_chunks(uploaded_file, bedrock_embeddings): # only excel and csv (pdf 
     all_docs = []
     # If multiple sheets, iterate through each
     for sheet_name, df in sheets.items():
-        # Use your existing splitting logic here
-        #chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
-        chunks = split_by_tokens(df)
-        all_docs.extend(chunks)
+        if chunking_method == 'Token Count':
+            chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
+            all_docs.extend(chunks)
+        else: # test number
+            chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
+            all_docs.extend(chunks)
 
-    st.success(f"Total: {len(all_docs)} chunks created and uploaded!")
+    st.success(f"{len(all_docs)} chunks created from {uploaded_file.name}! Uploading to Pinecone now...")
 
     vectorstore = PineconeVectorStore.from_documents(
         documents=all_docs,
         embedding=bedrock_embeddings,
         index_name=PINECONE_INDEX_NAME,
-        pinecone_api_key=PINECONE_API_KEY
+        pinecone_api_key=PINECONE_API_KEY,
     )
     return vectorstore
+
 
 def upload_chunks_from_s3(s3_key, bedrock_embeddings):
     # Download file from S3
@@ -110,7 +117,7 @@ def upload_chunks_from_s3(s3_key, bedrock_embeddings):
     all_docs = []
     for sheet_name, sheet_df in dfs:
         #chunks = split_by_test_number(sheet_df, sheet_name, s3_key)
-        chunks = split_by_tokens(sheet_df)
+        chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
         all_docs.extend(chunks)
 
     vectorstore = PineconeVectorStore.from_documents(
@@ -122,7 +129,78 @@ def upload_chunks_from_s3(s3_key, bedrock_embeddings):
     return vectorstore
 
 
-# CHUNKING LOGIC
+# CHUNKING LOGIC (tokens and test number)
+def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 1000, overlap_tokens: int = 100) -> List[Document]:
+    """Split DataFrame by token count, returning Document objects directly"""
+    documents = []
+    start_idx = 0
+    
+    while start_idx < len(df):
+        current_chunk_rows = []
+        current_token_count = 0
+        end_idx = start_idx
+        
+        # Build chunk row by row until token limit is reached
+        for idx in range(start_idx, len(df)):
+            row_text = ' '.join([str(cell) for cell in df.iloc[idx].values if pd.notna(cell)])
+            row_tokens = count_tokens(row_text)
+            
+            # Check if adding this row would exceed limit
+            if current_token_count + row_tokens > max_tokens and current_chunk_rows:
+                break
+            
+            current_chunk_rows.append(idx)
+            current_token_count += row_tokens
+            end_idx = idx + 1
+        
+        # If no rows fit (single row too large), take it anyway
+        if not current_chunk_rows:
+            current_chunk_rows = [start_idx]
+            end_idx = start_idx + 1
+        
+        # Create chunk DataFrame
+        chunk_df = df.iloc[current_chunk_rows]
+        start_row = start_idx + 1  # 1-based row numbering
+        end_row = end_idx
+        
+        # Convert DataFrame to text content
+        content = f"Sheet: {sheet_name}\nSource: {filename}\nRows {start_row}-{end_row}:\n\n"
+        content += chunk_df.to_string(index=True)
+        
+        # Calculate actual token count for the content
+        actual_token_count = count_tokens(content)
+        
+        # Create Document object
+        doc = Document(
+            page_content=content,
+            metadata={
+                "source": filename,
+                "sheet": sheet_name,
+                "chunk_type": "Token Count",
+                "start_row": start_row,
+                "end_row": end_row,
+                "total_rows": len(chunk_df),
+                "token_count": actual_token_count,
+                #"part_number": len(documents) + 1
+            }
+        )
+        documents.append(doc)
+        
+        # Calculate overlap for next chunk
+        if end_idx >= len(df):
+            break
+            
+        # Find overlap starting position
+        overlap_rows = min(overlap_tokens // 10, len(current_chunk_rows) // 4, 5)  # Rough estimate
+        start_idx = max(start_idx + 1, end_idx - overlap_rows)
+    
+    # Add total_parts to all documents
+    for doc in documents:
+        doc.metadata["total_parts"] = len(documents)
+    
+    return documents
+
+
 def split_by_test_number(df, sheet_name, filename):
     """Split DataFrame by rows containing 'Test Number', including initial content"""
     chunks = []
@@ -150,7 +228,7 @@ def split_by_test_number(df, sheet_name, filename):
                 "source": filename,
                 "sheet": sheet_name,
                 "test_number": "No Test Number Found",
-                "chunk_type": "full_sheet",
+                "chunk_type": "Full Sheet",
                 "start_row": 1,
                 "end_row": len(df)
             }
@@ -172,8 +250,8 @@ def split_by_test_number(df, sheet_name, filename):
             metadata={
                 "source": filename,
                 "sheet": sheet_name,
-                "test_number": "Header/Preamble",
-                "chunk_type": "initial_content",
+                "test_number": "Preamble",
+                "chunk_type": "Test Number",
                 "start_row": 1,
                 "end_row": test_number_rows[0],
                 "total_rows": len(initial_chunk_df)
@@ -203,11 +281,11 @@ def split_by_test_number(df, sheet_name, filename):
             metadata={
                 "source": filename,
                 "sheet": sheet_name,
-                "test_number": test_number,
-                "chunk_type": "test_based",
+                "chunk_type": "Test Number",
                 "start_row": start_row + 1,
                 "end_row": end_row,
-                "total_rows": len(chunk_df)
+                "total_rows": len(chunk_df),
+                "test_number": test_number
             }
         )
         chunks.append(chunk)
@@ -275,9 +353,6 @@ def convert_entire_sheet_to_text(df, sheet_name, filename):
     
     return "\n".join(content_parts)
 
-import tiktoken
-from typing import List, Tuple
-
 def count_tokens(text: str, encoding_name: str = "cl100k_base") -> int:
     """Count tokens in text using tiktoken encoding"""
     try:
@@ -286,49 +361,6 @@ def count_tokens(text: str, encoding_name: str = "cl100k_base") -> int:
     except:
         # Fallback: rough approximation (4 chars per token)
         return len(text) // 4
-
-
-def split_by_tokens(df, max_tokens: int = 7500, overlap_tokens: int = 200) -> List[Tuple[pd.DataFrame, int, int]]:
-    """Split DataFrame by token count, returning (chunk_df, start_row, end_row) tuples"""
-    chunks = []
-    start_idx = 0
-    
-    while start_idx < len(df):
-        current_chunk_rows = []
-        current_token_count = 0
-        end_idx = start_idx
-        
-        # Build chunk row by row until token limit is reached
-        for idx in range(start_idx, len(df)):
-            row_text = ' '.join([str(cell) for cell in df.iloc[idx].values if pd.notna(cell)])
-            row_tokens = count_tokens(row_text)
-            
-            # Check if adding this row would exceed limit
-            if current_token_count + row_tokens > max_tokens and current_chunk_rows:
-                break
-            
-            current_chunk_rows.append(idx)
-            current_token_count += row_tokens
-            end_idx = idx + 1
-        
-        # If no rows fit (single row too large), take it anyway
-        if not current_chunk_rows:
-            current_chunk_rows = [start_idx]
-            end_idx = start_idx + 1
-        
-        # Create chunk DataFrame
-        chunk_df = df.iloc[current_chunk_rows]
-        chunks.append((chunk_df, start_idx + 1, end_idx))  # +1 for 1-based row numbering
-        
-        # Calculate overlap for next chunk
-        if end_idx >= len(df):
-            break
-            
-        # Find overlap starting position
-        overlap_rows = min(overlap_tokens // 10, len(current_chunk_rows) // 4, 5)  # Rough estimate
-        start_idx = max(start_idx + 1, end_idx - overlap_rows)
-    
-    return chunks
 
 
 # INITIAL PROTOTYPE (for local FAISS database)    

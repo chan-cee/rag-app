@@ -56,8 +56,8 @@ def get_response_llm(vectorstore, query, model_id):
     
     qa = RetrievalQA.from_chain_type(
         llm=llm,
-        chain_type="stuff",
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+        chain_type="stuff", # map_reduce , refine, stuff
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 5}),
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT}
     )
@@ -105,15 +105,36 @@ def main():
 
         # --- Add single file ---
         uploaded_file = st.file_uploader("Upload document into Vector Store") #  (xlsx/csv/pdf)
+        st.subheader("Chunking Strategy")
+        chunking_type = st.radio(
+            "Select chunking method:",
+            options=["Token Count", "Test Number"],
+            index=0,  # Default to Token Count
+            help="Choose how to split your documents:\n"
+                "• Token Count: Split by token limits with overlap\n"
+                "• Test Number: Split by 'Test Number' markers in data"
+        )
 
         if uploaded_file is not None and st.button("Add to Vector Store"):
             with st.spinner(f"Chunking and uploading {uploaded_file.name} to Pinecone..."):
-                st.write(f"Uploaded file MIME type: {uploaded_file.type}")
-                chunking.upload_file_to_s3(uploaded_file)
-                chunking.upload_chunks(uploaded_file, bedrock_embeddings)
+                chunking.upload_file_to_s3(uploaded_file) # upload to s3
+                if chunking_type == "Token Count":
+                    chunking.upload_chunks(
+                        uploaded_file, 
+                        bedrock_embeddings, 
+                        "Token Count"
+                    )
+                else:  # Test Number
+                    chunking.upload_chunks(
+                        uploaded_file, 
+                        bedrock_embeddings, 
+                        "Test Number"
+                    )
+                #chunking.upload_chunks_test_based(uploaded_file, bedrock_embeddings)
+                #chunking.upload_chunks(uploaded_file, bedrock_embeddings)
                 st.success("Uploaded document to S3 and chunks to Pinecone!")
 
-        st.markdown("<br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+        st.markdown("<br><br><br>", unsafe_allow_html=True)
 
         # --- Refresh entire vector store ---
         st.markdown("##### Refresh the entire vector store from AWS S3 Bucket")
