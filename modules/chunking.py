@@ -109,7 +109,7 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
 
         # add more meta data
         for i, chunk in enumerate(chunks):
-            chunk.metadata["id"] = f"{source}_{i}"  # unique ID per chunk
+            chunk.metadata["id"] = f"{uploaded_file.name}_#{i}"  # unique ID per chunk
             lines = chunk.page_content.splitlines()
             chunk.metadata["num_rows"] = lines
             all_docs.append(chunk)
