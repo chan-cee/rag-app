@@ -82,7 +82,7 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
 
     all_docs = []
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=45000,
+        chunk_size=30000,
         chunk_overlap=200,
         length_function=len,
     )
