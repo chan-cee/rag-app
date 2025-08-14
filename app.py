@@ -35,11 +35,7 @@ pc = Pinecone(
     api_key=PINECONE_API_KEY
 )
 
-s3_client = boto3.client("s3",
-    aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
-    region_name="eu-west-1"  
-)
+s3_client = session.client("s3")
 
 PROMPT = prompt.get_prompt()
 
@@ -67,18 +63,18 @@ def get_response_llm(vectorstore, query, model_id):
 
 def display_top_k_chunks(vectorstore, query, k=3):
     top_k_docs_with_scores = vectorstore.similarity_search_with_score(query, k=k)
-    st.markdown(f"### RAG - Most Relevant Chunk")
+    st.markdown(f"### RAG - Most Relevant Chunks")
     st.write("") 
-    for i, (doc, score) in enumerate(top_k_docs_with_scores, start=1):
+    for i, (doc, score) in enumerate(top_k_docs_with_scores, start=3):
         #st.markdown(f"#### Top Similarity Chunk: Chunk {i}")
         st.markdown(f"**Similarity Score:** {score:.4f}")
         st.markdown(f"**Source:** {doc.metadata.get('source', 'N/A')}")
         st.markdown(f"**Sheet:** {doc.metadata.get('sheet', 'N/A')}")
-        st.markdown(f"**Test Number:** {doc.metadata.get('test_number', 'N/A')}")
+        #st.markdown(f"**Test Number:** {doc.metadata.get('test_number', 'N/A')}")
         st.markdown(f"**Rows:** {doc.metadata.get('start_row', 'N/A')} - {doc.metadata.get('end_row', 'N/A')}")
         
         with st.expander("📄 View Chunk Content"):
-            st.text(doc.page_content[:3000]) # truncated
+            st.text(doc.page_content[:1500]) # truncated
 
 
 def main():
