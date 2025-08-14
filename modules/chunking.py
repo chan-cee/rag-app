@@ -83,8 +83,8 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
     all_docs = []
     splitter = RecursiveCharacterTextSplitter(
         #chunk_size=30000,
-        chunk_size=7800,
-        chunk_overlap=200,
+        chunk_size=8000,
+        chunk_overlap=100,
         #length_function=len,
         length_function=count_tokens
     )
@@ -95,7 +95,15 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
         text = df.to_csv(index=False) 
         original_doc = Document(
             page_content=text,
-            metadata={"source": uploaded_file.name, "sheet": sheet_name}
+            # metadata={"source": uploaded_file.name, 
+            # "sheet": sheet_name},
+            metadata={
+                "source": uploaded_file.name,
+                "sheet": sheet_name,
+                "chunk_type": "Token Count",
+                "total_rows": len(df),
+                #"part_number": len(documents) + 1
+            }
         )
         chunks = splitter.split_documents([original_doc])
         all_docs.extend(chunks)
