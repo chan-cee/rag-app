@@ -80,14 +80,30 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
         raise ValueError(f"Unsupported file extension: {filename}")
 
     all_docs = []
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=50000,
+        chunk_overlap=200,
+        length_function=len
+    )
+
     # If multiple sheets, iterate through each
     for sheet_name, df in sheets.items():
-        if chunking_method == 'Token Count':
-            chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
-            all_docs.extend(chunks)
-        else: # test number
-            chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
-            all_docs.extend(chunks)
+        print(f"Chunking up {sheet_name}")
+        text = df.to_csv(index=False) 
+        original_doc = Document(
+            page_content=text,
+            metadata={"source": uploaded_file.name, "sheet": sheet_name}
+        )
+        chunks = splitter.split_documents([original_doc])
+        all_docs.extend(chunks)
+
+
+        # if chunking_method == 'Token Count':
+        #     chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
+        #     all_docs.extend(chunks)
+        # else: # test number
+        #     chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
+        #     all_docs.extend(chunks)
 
     st.success(f"{len(all_docs)} chunks created from {uploaded_file.name}! Uploading to Pinecone now...")
 
