@@ -84,7 +84,8 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=50000,
         chunk_overlap=200,
-        length_function=len
+        #length_function=len,
+        length_function=count_tokens
     )
 
     # If multiple sheets, iterate through each
@@ -386,7 +387,7 @@ def count_tokens(text: str, encoding_name: str = "cl100k_base") -> int:
         return len(encoding.encode(text))
     except:
         # Fallback: rough approximation (4 chars per token)
-        return len(text) // 4
+        return len(text) // 5
 
 
 # INITIAL PROTOTYPE (for local FAISS database)    
