@@ -8,6 +8,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain.vectorstores import FAISS
 import tiktoken
 from typing import List, Tuple
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
 S3_BUCKET_NAME = "rag-documents-eds"
