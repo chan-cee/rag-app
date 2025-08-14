@@ -91,36 +91,36 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
 
     # # If multiple sheets, iterate through each
     for sheet_name, df in sheets.items():
-    #     print(f"Chunking up {sheet_name}")
-    #     text = df.to_csv(index=False) 
-    #     original_doc = Document(
-    #         page_content=text,
-    #         # metadata={"source": uploaded_file.name, 
-    #         # "sheet": sheet_name},
-    #         metadata={
-    #             "source": uploaded_file.name,
-    #             "sheet": sheet_name,
-    #             "chunk_type": "Token Count",
-    #             #"num_rows": len(df),
-    #             #"part_number": len(documents) + 1
-    #         }
-    #     )
-    #     chunks = splitter.split_documents([original_doc])
+        print(f"Chunking up {sheet_name}")
+        text = df.to_csv(index=False) 
+        original_doc = Document(
+            page_content=text,
+            # metadata={"source": uploaded_file.name, 
+            # "sheet": sheet_name},
+            metadata={
+                "source": uploaded_file.name,
+                "sheet": sheet_name,
+                "chunk_type": "Token Count",
+                #"num_rows": len(df),
+                #"part_number": len(documents) + 1
+            }
+        )
+        chunks = splitter.split_documents([original_doc])
 
-    #     # add more meta data
-    #     for i, chunk in enumerate(chunks):
-    #         chunk.metadata["id"] = f"{uploaded_file.name}_#{i}"  # unique ID per chunk
-    #         lines = chunk.page_content.splitlines()
-    #         chunk.metadata["num_rows"] = len(lines)
-    #         all_docs.append(chunk)
-    #     #all_docs.extend(chunks)
+        # add more meta data
+        for i, chunk in enumerate(chunks):
+            chunk.metadata["id"] = f"{uploaded_file.name}_#{i}"  # unique ID per chunk
+            lines = chunk.page_content.splitlines()
+            chunk.metadata["num_rows"] = len(lines)
+            all_docs.append(chunk)
+        #all_docs.extend(chunks)
 
-        if chunking_method == 'Token Count':
-            chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
-            all_docs.extend(chunks)
-        else: # test number
-            chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
-            all_docs.extend(chunks)
+        # if chunking_method == 'Token Count':
+        #     chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
+        #     all_docs.extend(chunks)
+        # else: # test number
+        #     chunks = split_by_test_number(df, sheet_name, uploaded_file.name)
+        #     all_docs.extend(chunks)
 
     st.success(f"{len(all_docs)} chunks created from {uploaded_file.name}! Uploading to Pinecone now...")
 
