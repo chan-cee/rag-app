@@ -61,6 +61,56 @@ def get_response_llm(vectorstore, query, model_id):
     output = re.sub(r"<reasoning>.*</reasoning>", "", output, flags=re.DOTALL) # omit reasoning portion
     return output
 
+# def get_response_llm(vectorstore, query, model_id):
+#     import re
+#     from langchain.chains import RetrievalQA
+#     from langchain.prompts import PromptTemplate
+
+#     # Initialize Bedrock client
+#     bedrock = session.client("bedrock-runtime", region_name="us-west-2")
+
+#     # Select model wrapper
+#     if "openai" in model_id.lower():  
+#         llm = models.GPTLLM(bedrock=bedrock)
+#     elif "anthropic" in model_id.lower():
+#         llm = models.ClaudeLLM(bedrock=bedrock)
+#     else:
+#         raise ValueError(f"Unsupported model: {model_id}")
+
+#     # ---------- Stage 1: Reformulate Query ----------
+#     reform_prompt = PromptTemplate(
+#         input_variables=["original_query"],
+#         template=(
+#             "You are an expert query reformulator. "
+#             "Rewrite the user's query to make it more precise and relevant for document retrieval.\n"
+#             "Based on the test type in the MCT script, this rewritten query will be passed into the RAG pipeline.\n"
+#             "Currently the multiple SPEAL chunks in the corresponding to this test type have text starting with 'SPEAL {test_type} Script Example {id_number}'.\n" 
+#             "Those with the same id_number of the same test type are the relevant documents to retrieve to show the example of the conversion from MCT to SPEAL.\n"
+#             "The corresponding MCT code example begins with 'MCT2000 {test_type} Script Example {id_number}', matching the same id_number as the SPEAL chunks. \n"
+#             "Do reformat this query below, in exact text literal form (can be fed word for word into the RAG for semantic search), in a way that can retrieve all those relevant example chunks to learn the conversion patterns.\n"
+#             "Original query: {original_query}\n"
+#             "Reformulated query:"
+#         )
+#     )
+
+#     reformulated_query = llm.invoke(
+#         reform_prompt.format(original_query=query)
+#     ).strip()
+
+#     qa = RetrievalQA.from_chain_type(
+#         llm=llm,
+#         chain_type="stuff", 
+#         retriever=vectorstore.as_retriever(search_kwargs={"k": 10}),
+#         return_source_documents=True,
+#         chain_type_kwargs={"prompt": PROMPT}
+#     )
+
+#     output = qa.invoke({"query": reformulated_query})["result"]
+#     output = re.sub(r"<reasoning>.*?</reasoning>", "", output, flags=re.DOTALL)
+
+#     return output
+
+
 def display_top_k_chunks(vectorstore, query, k=3):
     top_k_docs_with_scores = vectorstore.similarity_search_with_score(query, k=k)
     st.markdown(f"### RAG - Most Relevant Chunks")
@@ -113,7 +163,7 @@ def main():
 
         if uploaded_file is not None and st.button("Add to Vector Store"):
             with st.spinner(f"Chunking and uploading {uploaded_file.name} to Pinecone..."):
-                chunking.upload_file_to_s3(uploaded_file) # upload to s3
+                #chunking.upload_file_to_s3(uploaded_file) # upload to s3
                 if chunking_type == "Token Count":
                     chunking.upload_chunks(
                         uploaded_file, 
