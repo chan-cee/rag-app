@@ -10,6 +10,7 @@ faiss-cpu
 langchain_pinecone
 pinecone
 tiktoken
+openpyxl
 
 # boto3
 # awscli

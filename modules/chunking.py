@@ -139,7 +139,7 @@ def upload_chunks_from_s3(s3_key, bedrock_embeddings):
 
 
 # CHUNKING LOGIC (tokens and test number)
-def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 4000, overlap_tokens: int = 100) -> List[Document]:
+def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 3000, overlap_tokens: int = 100) -> List[Document]:
     """Split DataFrame by token count, returning Document objects directly"""
     documents = []
     start_idx = 0
