@@ -53,7 +53,7 @@ def get_response_llm(vectorstore, query, model_id):
     qa = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff", # map_reduce , refine, stuff
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 10}),
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 7}),
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT}
     )
@@ -115,7 +115,7 @@ def display_top_k_chunks(vectorstore, query, k=3):
     top_k_docs_with_scores = vectorstore.similarity_search_with_score(query, k=k)
     st.markdown(f"### RAG - Most Relevant Chunks")
     st.write("") 
-    for i, (doc, score) in enumerate(top_k_docs_with_scores, start=3):
+    for i, (doc, score) in enumerate(top_k_docs_with_scores, start=0):
         #st.markdown(f"#### Top Similarity Chunk: Chunk {i}")
         st.markdown(f"**Similarity Score:** {score:.4f}")
         st.markdown(f"**Source:** {doc.metadata.get('source', 'N/A')}")
@@ -218,7 +218,7 @@ def main():
             st.session_state.chat_history.append({"user": user_input, "bot": bot_response})
 
             st.write("") 
-            display_top_k_chunks(vectorstore, user_input, k=1)
+            display_top_k_chunks(vectorstore, user_input, k=3)
             st.markdown("<br>", unsafe_allow_html=True)
 
             st.markdown("### Chat History")
