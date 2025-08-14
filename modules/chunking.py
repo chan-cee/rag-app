@@ -98,18 +98,22 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
             # metadata={"source": uploaded_file.name, 
             # "sheet": sheet_name},
             metadata={
-                "id": f"{sheet_name_}", 
                 "source": uploaded_file.name,
                 "sheet": sheet_name,
                 "chunk_type": "Token Count",
-                "total_rows": len(df),
+                #"num_rows": len(df),
                 #"part_number": len(documents) + 1
             }
         )
         chunks = splitter.split_documents([original_doc])
+
+        # add more meta data
         for i, chunk in enumerate(chunks):
-            chunk.metadata["id"] = f"{source}_{i}"  # unique per chunk
+            chunk.metadata["id"] = f"{source}_{i}"  # unique ID per chunk
+            lines = chunk.page_content.splitlines()
+            chunk.metadata["num_rows"] = lines
             all_docs.append(chunk)
+
         #all_docs.extend(chunks)
 
         # if chunking_method == 'Token Count':
@@ -169,10 +173,11 @@ def upload_chunks_from_s3(s3_key, bedrock_embeddings):
 
 
 # CHUNKING LOGIC (tokens and test number)
-def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 3000, overlap_tokens: int = 100) -> List[Document]:
+def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 8000, overlap_tokens: int = 100) -> List[Document]:
     """Split DataFrame by token count, returning Document objects directly"""
     documents = []
     start_idx = 0
+    id = 0
     
     while start_idx < len(df):
         current_chunk_rows = []
@@ -213,17 +218,18 @@ def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 3000, 
         doc = Document(
             page_content=content,
             metadata={
+                "id": f"{filename}_#{id}",
                 "source": filename,
                 "sheet": sheet_name,
                 "chunk_type": "Token Count",
                 "start_row": start_row,
                 "end_row": end_row,
                 "total_rows": len(chunk_df),
-                "token_count": actual_token_count,
-                #"part_number": len(documents) + 1
+                "token_count": actual_token_count
             }
         )
         documents.append(doc)
+        id += 1
         
         # Calculate overlap for next chunk
         if end_idx >= len(df):
