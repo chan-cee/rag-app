@@ -218,7 +218,7 @@ def main():
             st.session_state.chat_history.append({"user": user_input, "bot": bot_response})
 
             st.write("") 
-            display_top_k_chunks(vectorstore, user_input, k=3)
+            display_top_k_chunks(vectorstore, user_input, k=5)
             st.markdown("<br>", unsafe_allow_html=True)
 
             st.markdown("### Chat History")
