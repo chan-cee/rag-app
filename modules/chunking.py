@@ -98,6 +98,7 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
             # metadata={"source": uploaded_file.name, 
             # "sheet": sheet_name},
             metadata={
+                "id": f"{sheet_name_}", 
                 "source": uploaded_file.name,
                 "sheet": sheet_name,
                 "chunk_type": "Token Count",
@@ -106,8 +107,10 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
             }
         )
         chunks = splitter.split_documents([original_doc])
-        all_docs.extend(chunks)
-
+        for i, chunk in enumerate(chunks):
+            chunk.metadata["id"] = f"{source}_{i}"  # unique per chunk
+            all_docs.append(chunk)
+        #all_docs.extend(chunks)
 
         # if chunking_method == 'Token Count':
         #     chunks = split_by_tokens(df, sheet_name, uploaded_file.name)
