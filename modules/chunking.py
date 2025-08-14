@@ -82,9 +82,11 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
 
     all_docs = []
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=30000,
+        #chunk_size=30000,
+        chunk_size=7800,
         chunk_overlap=200,
-        length_function=len,
+        #length_function=len,
+        length_function=count_tokens
     )
 
     # If multiple sheets, iterate through each
