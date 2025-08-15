@@ -96,6 +96,8 @@ def get_response_llm(vectorstore, query, model_id):
         reform_prompt.format(original_query=query)
     ).strip()
 
+    print(reformulated_query)
+
     qa = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff", 
