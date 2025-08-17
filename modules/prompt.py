@@ -36,7 +36,7 @@ Convert the following MCT 2000 script into SPEAL syntax:
 {question}
 
 Output:
-Return ONLY the converted SPEAL code inside a single code block. DO NOT add any explanations except possible comments within the code. 
+Return the converted SPEAL code in FULL inside a single code block. DO NOT add any explanations except possible comments within the code. 
 """
 
 def get_prompt():

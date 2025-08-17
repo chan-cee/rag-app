@@ -39,78 +39,28 @@ s3_client = session.client("s3")
 
 PROMPT = prompt.get_prompt()
 
-# def get_response_llm(vectorstore, query, model_id):
-#     #session = boto3.Session()
-#     bedrock = session.client("bedrock-runtime", region_name="us-west-2")
 
-#     if "openai" in model_id.lower():  
-#         llm = models.GPTLLM(bedrock=bedrock)
-#     elif "anthropic" in model_id.lower():
-#         llm = models.ClaudeLLM(bedrock=bedrock)
-#     else:
-#         raise ValueError(f"Unsupported model: {model_id}")
-    
-#     qa = RetrievalQA.from_chain_type(
-#         llm=llm,
-#         chain_type="stuff", # map_reduce , refine, stuff
-#         retriever=vectorstore.as_retriever(search_kwargs={"k": 7}),
-#         return_source_documents=True,
-#         chain_type_kwargs={"prompt": PROMPT}
-#     )
-#     output = qa.invoke({"query": query})["result"]
-#     output = re.sub(r"<reasoning>.*</reasoning>", "", output, flags=re.DOTALL) # omit reasoning portion
-#     return output
-
-def get_response_llm(vectorstore, query, model_id):
-    import re
-    from langchain.prompts import PromptTemplate
-
-    # Initialize Bedrock client
+def get_response_llm(vectorstore, query, model_id, k=7):
+    #session = boto3.Session()
     bedrock = session.client("bedrock-runtime", region_name="us-west-2")
 
-    # Select model wrapper
     if "openai" in model_id.lower():  
         llm = models.GPTLLM(bedrock=bedrock)
     elif "anthropic" in model_id.lower():
         llm = models.ClaudeLLM(bedrock=bedrock)
     else:
         raise ValueError(f"Unsupported model: {model_id}")
-
-    # ---------- Stage 1: Reformulate Query ----------
-    reform_prompt = PromptTemplate(
-        input_variables=["original_query"],
-        template=(
-            "You are an expert query reformulator. "
-            "Rewrite the user's query to make it more precise and relevant for document retrieval.\n"
-            "Based on the test type in the MCT script, this rewritten query will be passed into the RAG pipeline.\n"
-            "Currently the multiple SPEAL chunks in the corresponding to this test type have text starting with 'SPEAL #test_type Script Example #id_number'.\n" 
-            "Those with the same id_number of the same test type are the relevant documents to retrieve to show the example of the conversion from MCT to SPEAL.\n"
-            "The corresponding MCT code example begins with 'MCT2000 #test_type# Script Example #id_number', matching the same id_number as the SPEAL chunks. \n"
-            "Do reformat this query below, in exact text literal form (can be fed word for word into the RAG for semantic search), in a way that can retrieve all those relevant example chunks to learn the conversion patterns.\n"
-            "Original query: {original_query}\n"
-            "Reformulated query:"
-        )
-    )
-
-    reformulated_query = llm.invoke(
-        reform_prompt.format(original_query=query)
-    ).strip()
-
-    print(reformulated_query)
-
+    
     qa = RetrievalQA.from_chain_type(
         llm=llm,
-        chain_type="stuff", 
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 10}),
+        chain_type="stuff", # map_reduce , refine, stuff
+        retriever=vectorstore.as_retriever(search_kwargs={"k": k}),
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT}
     )
-
-    output = qa.invoke({"query": reformulated_query})["result"]
-    output = re.sub(r"<reasoning>.*?</reasoning>", "", output, flags=re.DOTALL)
-
+    output = qa.invoke({"query": query})["result"]
+    output = re.sub(r"<reasoning>.*</reasoning>", "", output, flags=re.DOTALL) # omit reasoning portion
     return output
-
 
 def display_top_k_chunks(vectorstore, query, k=3):
     top_k_docs_with_scores = vectorstore.similarity_search_with_score(query, k=k)
@@ -131,21 +81,6 @@ def display_top_k_chunks(vectorstore, query, k=3):
 def main():
     st.set_page_config("RAG Application")
     st.header("🧩  Code Refactoring Chatbot ") # \n I am currently running using: OpenAI gpt-oss-120b
-
-    # user_input = st.text_input("Hello there! Ask a question in relation to the files:")
-    # with st.sidebar:
-    #     st.title("Update Or Create Vector Store:")
-    #     uploaded_file = st.file_uploader("Upload your document", type=["xlsx", "csv", "pdf"])
-    #     if uploaded_file is not None:
-    #         s3_key = chunking.upload_file_to_s3(uploaded_file)
-    #         st.success(f"Uploaded to S3 with key: {s3_key}")
-        
-    #     if st.button("Update Vectors"):
-    #         with st.spinner("Processing..."):
-    #             docs = chunking.data_ingestion()
-    #             print(f"Loaded and split {len(docs)} document chunks")
-    #             chunking.get_vector_store(docs, bedrock_embeddings)
-    #             st.success("Done")
 
     with st.sidebar:
         st.title("Vector Store Management")
@@ -213,13 +148,13 @@ def main():
             #vectorstore = PineconeVectorStore(index_name=PINECONE_INDEX_NAME, embedding=bedrock_embeddings.embed_query)
             vectorstore = PineconeVectorStore(index_name=PINECONE_INDEX_NAME, pinecone_api_key=PINECONE_API_KEY, embedding=bedrock_embeddings)
 
-            bot_response = get_response_llm(vectorstore, user_input, model_choice)
+            bot_response = get_response_llm(vectorstore, user_input, model_choice, 7)
             #st.write(bot_response)
             st.info(bot_response)
             st.session_state.chat_history.append({"user": user_input, "bot": bot_response})
 
             st.write("") 
-            display_top_k_chunks(vectorstore, user_input, k=5)
+            display_top_k_chunks(vectorstore, user_input, k=7)
             st.markdown("<br>", unsafe_allow_html=True)
 
             st.markdown("### Chat History")

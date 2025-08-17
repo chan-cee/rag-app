@@ -64,15 +64,9 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
     # Read bytes from uploaded file
     uploaded_file.seek(0) 
     file_bytes = uploaded_file.read()
-    
-    # Determine file type and load DataFrame(s)
-    # if uploaded_file.type in ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"]:
-    #     sheets = pd.read_excel(io.BytesIO(file_bytes), sheet_name=None)
-    # elif uploaded_file.type == "text/csv":
-    #     sheets = {"CSV": pd.read_csv(io.BytesIO(file_bytes))}
-    # else:
-    #     raise ValueError("Unsupported file type. Only Excel or CSV allowed.")
+
     filename = uploaded_file.name.lower()
+    base_filename = os.path.splitext(filename)[0]
     if filename.endswith(('.xlsx', '.xls')):
         sheets = pd.read_excel(io.BytesIO(file_bytes), sheet_name=None)
     elif filename.endswith('.csv'):
@@ -81,22 +75,22 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
         raise ValueError(f"Unsupported file extension: {filename}")
 
     all_docs = []
-    # splitter = RecursiveCharacterTextSplitter(
-    #     #chunk_size=30000,
-    #     chunk_size=8000,
-    #     chunk_overlap=100,
-    #     #length_function=len,
-    #     length_function=count_tokens
-    # )
 
+    splitter = RecursiveCharacterTextSplitter(
+        #chunk_size=30000,
+        chunk_size=8000,
+        chunk_overlap=100,
+        #length_function=len,
+        length_function=count_tokens
+    )
+
+    index = 0
     # # If multiple sheets, iterate through each
     for sheet_name, df in sheets.items():
         print(f"Chunking up {sheet_name}")
         text = df.to_csv(index=False) 
         original_doc = Document(
             page_content=text,
-            # metadata={"source": uploaded_file.name, 
-            # "sheet": sheet_name},
             metadata={
                 "source": uploaded_file.name,
                 "sheet": sheet_name,
@@ -106,13 +100,14 @@ def upload_chunks(uploaded_file, bedrock_embeddings, chunking_method): # only ex
             }
         )
         chunks = splitter.split_documents([original_doc])
-
+    
         # add more meta data
         for i, chunk in enumerate(chunks):
-            chunk.metadata["id"] = f"{uploaded_file.name}_#{i}"  # unique ID per chunk
+            chunk.metadata["id"] = f"{base_filename}-{index}"  # unique ID per chunk
             lines = chunk.page_content.splitlines()
             chunk.metadata["num_rows"] = len(lines)
             all_docs.append(chunk)
+            index += 1
         #all_docs.extend(chunks)
 
         # if chunking_method == 'Token Count':
@@ -172,7 +167,7 @@ def upload_chunks_from_s3(s3_key, bedrock_embeddings):
 
 
 # CHUNKING LOGIC (tokens and test number)
-def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 8000, overlap_tokens: int = 100) -> List[Document]:
+def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 2000, overlap_tokens: int = 100) -> List[Document]:
     """Split DataFrame by token count, returning Document objects directly"""
     documents = []
     start_idx = 0
@@ -210,14 +205,14 @@ def split_by_tokens(df, sheet_name: str, filename: str, max_tokens: int = 8000, 
         content = f"Sheet: {sheet_name}\nSource: {filename}\nRows {start_row}-{end_row}:\n\n"
         content += chunk_df.to_string(index=True)
         
-        # Calculate actual token count for the content
         actual_token_count = count_tokens(content)
+        base_filename = os.path.splitext(filename)[0]
         
         # Create Document object
         doc = Document(
             page_content=content,
             metadata={
-                "id": f"{filename}_#{id}",
+                "id": f"{base_filename}_{id}",
                 "source": filename,
                 "sheet": sheet_name,
                 "chunk_type": "Token Count",

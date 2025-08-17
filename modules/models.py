@@ -3,6 +3,12 @@ from langchain_core.outputs import LLMResult, Generation
 from typing import Any, List, Optional
 import json
 from pydantic import Field
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors.base import BaseDocumentCompressor
+from langchain.schema import Document
+#from langchain_core.documents import Document
+#from langchain_core.rerankers import BaseDocumentCompressor
+import boto3, json
 
 # custom wrapper
 class GPTLLM(BaseLLM): # oss-120
@@ -80,3 +86,6 @@ class ClaudeLLM(BaseLLM): # sonnet 4
     @property
     def _llm_type(self) -> str:
         return "claude"
+
+
+
