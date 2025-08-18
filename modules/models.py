@@ -9,8 +9,9 @@ from langchain.schema import Document
 #from langchain_core.documents import Document
 #from langchain_core.rerankers import BaseDocumentCompressor
 import boto3, json
+import uuid
 
-# custom wrapper
+#custom wrapper
 class GPTLLM(BaseLLM): # oss-120
     bedrock: Any = Field(exclude=True) 
     model_id: str = "openai.gpt-oss-120b-1:0"
@@ -48,6 +49,61 @@ class GPTLLM(BaseLLM): # oss-120
     @property
     def _llm_type(self) -> str:
         return "gpt-oss"
+
+# class GPTLLM(BaseLLM):
+#     bedrock: Any = Field(exclude=True)
+#     model_id: str = "openai.gpt-oss-120b-1:0"
+    
+#     def _generate(
+#         self,
+#         prompts: List[str],
+#         stop: Optional[List[str]] = None,
+#         **kwargs: Any,
+#     ) -> LLMResult:
+        
+#         # DEBUG: Add logging to see what's happening
+#         request_id = str(uuid.uuid4())[:8]
+#         print(f"🔍 GPTLLM._generate called with {len(prompts)} prompts (ID: {request_id})")
+        
+#         # Log each prompt (first 100 chars)
+#         for i, prompt in enumerate(prompts):
+#             print(f"  Prompt {i+1}: {prompt[:100]}...")
+        
+#         generations = []
+        
+#         for i, prompt in enumerate(prompts):
+#             try:
+#                 print(f"📡 Making Bedrock API call {i+1}/{len(prompts)} (ID: {request_id})")
+                
+#                 response = self.bedrock.invoke_model(
+#                     modelId=self.model_id,
+#                     contentType="application/json",
+#                     accept="application/json",
+#                     body=json.dumps({
+#                         "messages": [{"role": "user", "content": prompt}],
+#                         "temperature": kwargs.get("temperature", 0.2),
+#                         "top_p": kwargs.get("top_p", 0.5),
+#                         "max_completion_tokens": kwargs.get("max_completion_tokens", 4000)  # Reduced from 8192
+#                     })
+#                 )
+                
+#                 response_body = json.loads(response['body'].read())
+#                 text = response_body['choices'][0]['message']['content']
+#                 generations.append([Generation(text=text)])
+                
+#                 print(f"✅ API call {i+1} completed (ID: {request_id})")
+                
+#             except Exception as e:
+#                 print(f"❌ API call {i+1} failed: {str(e)} (ID: {request_id})")
+#                 generations.append([Generation(text=f"Error: {str(e)}")])
+        
+#         print(f"🏁 GPTLLM._generate completed for ID: {request_id}")
+#         return LLMResult(generations=generations)
+    
+#     @property
+#     def _llm_type(self) -> str:
+#         return "gpt-oss"
+
     
 class ClaudeLLM(BaseLLM): # sonnet 4 
     bedrock: Any = Field(exclude=True) 
@@ -72,7 +128,7 @@ class ClaudeLLM(BaseLLM): # sonnet 4
                         "messages": [{"role": "user", "content": prompt}],
                         "temperature": kwargs.get("temperature", 0.2),
                         "top_p": kwargs.get("top_p", 0.5),
-                        "max_tokens": kwargs.get("max_tokens", 4096)
+                        "max_tokens": kwargs.get("max_tokens", 8192) #4096
                     })
                 )
                 response_body = json.loads(response['body'].read())
