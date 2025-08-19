@@ -1,0 +1,10 @@
+testing.ipynb
+credentials.py
+data.py
+RAG Test Case Outputs.docx
+__pycache__/
+*.log
+.env
+data/
+.streamlit/
+secrets.toml

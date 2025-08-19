@@ -8,6 +8,7 @@ import streamlit as st
 from modules import prompt, chunking, models
 from botocore.config import Config
 import tiktoken
+from dotenv import load_dotenv
 
 from langchain_community.embeddings import BedrockEmbeddings
 #from langchain_aws import BedrockEmbeddings
@@ -18,9 +19,11 @@ from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 from langchain.vectorstores import Pinecone as LangPinecone
 
+load_dotenv()
 PINECONE_INDEX_NAME = "rag-documents"  
 S3_BUCKET_NAME = "rag-documents-eds"
-PINECONE_API_KEY = st.secrets["PINECONE_API_KEY"]
+#PINECONE_API_KEY = st.secrets["PINECONE_API_KEY"]
+PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 
 config = Config(
     read_timeout=300,
@@ -28,12 +31,13 @@ config = Config(
     retries={'max_attempts': 1} 
 )
 
-session = boto3.Session(
-    aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
-    aws_session_token=st.secrets["AWS_SESSION_TOKEN"],
-    region_name=st.secrets["AWS_DEFAULT_REGION"]
-)
+# session = boto3.Session(
+#     aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
+#     aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
+#     aws_session_token=st.secrets["AWS_SESSION_TOKEN"],
+#     region_name=st.secrets["AWS_DEFAULT_REGION"]
+# )
+session = boto3.Session(region_name="us-west-2")  
 #session = boto3.Session() # for local running when logged into aws sso login
 
 bedrock = session.client("bedrock-runtime", region_name="us-west-2", config=config)
@@ -47,6 +51,7 @@ s3_client = session.client("s3")
 
 PROMPT = prompt.get_prompt()
 
+# only for claude 3.7
 def get_response_llm_streaming(vectorstore, query, model_id, k=7):
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
     docs = retriever.get_relevant_documents(query)

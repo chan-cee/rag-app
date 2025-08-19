@@ -1,4 +1,9 @@
-# Ignore Streamlit secrets
 secrets.toml
 .streamlit/secrets.toml
 credentials.py
+testing.ipynb
+/data
+data.py
+__pycache__/
+*.log
+.env

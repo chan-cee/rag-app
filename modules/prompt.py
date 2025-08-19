@@ -22,8 +22,7 @@ system_template = (
     "6. Do not omit code unless it is clearly obsolete in SPEAL; instead, mark with a comment.\n"
     "7. Output *only* the final converted SPEAL code in a code block, with no extra explanation.\n"
     "\n"
-    "Reference mapping between SPEAL and MCT 2000 is provided in the context section. "
-    "The left side of the context shows SPEAL formatting conventions, the right side shows MCT 2000 formatting.\n"
+    "Reference mapping between SPEAL and MCT 2000 is provided in the context section. \n"
 )
 
 human_template = """

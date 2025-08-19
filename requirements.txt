@@ -12,6 +12,7 @@ pinecone
 tiktoken
 openpyxl
 langchain_cohere
+dotenv
 
 # boto3
 # awscli

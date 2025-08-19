@@ -9,27 +9,22 @@ from langchain.vectorstores import FAISS
 import tiktoken
 from typing import List, Tuple
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
 
-
+load_dotenv()
 S3_BUCKET_NAME = "rag-documents-eds"
 PINECONE_INDEX_NAME = "rag-documents"
-PINECONE_API_KEY = st.secrets["PINECONE_API_KEY"]
+PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 
-session = boto3.Session(
-    aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
-    aws_session_token=st.secrets["AWS_SESSION_TOKEN"],
-    region_name=st.secrets["AWS_DEFAULT_REGION"]
-)
-
-s3_client = session.client("s3")
-
-# s3_client = boto3.client("s3",
+# session = boto3.Session(
 #     aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
 #     aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
 #     aws_session_token=st.secrets["AWS_SESSION_TOKEN"],
 #     region_name=st.secrets["AWS_DEFAULT_REGION"]
 # )
+
+session = boto3.Session(region_name="us-west-2")  
+s3_client = session.client("s3")
 
 def upload_file_to_s3(uploaded_file) -> str: # all file types are accepted (might need to fix)
     key = f"raw_docs/{uploaded_file.name}"
